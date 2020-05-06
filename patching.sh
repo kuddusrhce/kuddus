@@ -1,7 +1,7 @@
 #!/bin/bash
 #Author: Kuddus
 # This script is used to generate patching reports.
-#aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,KeyName,PrivateIpAddress]' --output table | awk -F "|" '/i-/ {print $2 $3 $4}' > instance_info
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,KeyName,PrivateIpAddress]' --output table | awk -F "|" '/i-/ {print $2 $3 $4}' > instance_info
 #ip=aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,KeyName,PrivateIpAddress]' --output table | awk -F "|" '/i-/ {print $4}'
 #instance_ids=aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,KeyName,PrivateIpAddress]' --output table | awk -F "|" '/i-/ {print $2}' > instance_ids
 function pre_patch_output
@@ -51,8 +51,8 @@ function pre_patch_output
 }
 function patchinstance
 {
-           #python amibackup.py $1 'us-east-1'
-           #[ $? -ne 0 ] && echo "AMI Backup failed for instance $1" && return
+            python amibackup.py $1 'us-east-1'
+            [ $? -ne 0 ] && echo "AMI Backup failed for instance $1" && return
 	     IP=$(cat instance_info | grep -i "$1" | awk -F" " '{print $3}')	
              sec_update=$(ssh -o StrictHostKeyChecking=No ec2-user@$IP -i ${keys}.pem sudo yum update --security -y) >> ${IP}_patching.log
 		if [ $? -eq 0 ]

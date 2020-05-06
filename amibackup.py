@@ -24,7 +24,7 @@ try:
 
         print("Beginning AMI Backup for " + hostname)
         retention_days=3
-        ami_image = instance.create_image(Name=hostname + "_AMI_" + time.strftime("%d-%m-%Y-%H-%M"), NoReboot=True)
+        ami_image = instance.create_image(Name=hostname + "_AMI_Before_Patching_" + time.strftime("%d-%m-%Y-%H-%M"), NoReboot=True)
         delete_date = datetime.date.today() + datetime.timedelta(days=retention_days)
         delete_fmt = delete_date.strftime('%Y-%m-%d')
         ami_image.create_tags(Tags=[
