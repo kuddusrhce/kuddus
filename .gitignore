@@ -1,0 +1,5 @@
+*.log
+*.csv
+instance_info
+server.txt
+*pre_pkginfo
