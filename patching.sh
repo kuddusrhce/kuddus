@@ -37,12 +37,12 @@ function pre_patch_output
                 echo "============================Ending Pre Patch report==================" >> ${server}_pre_patch.log
                 echo "IP Address,Pre Package Name" >> ${server}_pre_patch.csv
                 ssh -o StrictHostKeyChecking=No ec2-user@$server -i ${keys}.pem sudo yum clean all
-                host_name=$(ssh -o StrictHostKeyChecking=No ec2-user@$server -i ${keys}.pem sudo hostname -I)
+                #host_name=$(ssh -o StrictHostKeyChecking=No ec2-user@$server -i ${keys}.pem sudo hostname -I)
 		sec=$(ssh -o StrictHostKeyChecking=No ec2-user@$server -i ${keys}.pem sudo yum list-sec | grep -E "/Sec" | awk '{print $NF}')
 		echo $sec >> ${server}_pre_pkginfo
 		for pkg in $(cat ${server}_pre_pkginfo)
 		do 
-                echo -e "$host_name,$pkg" >> ${server}_pre_patch.csv
+                echo -e "${server},$pkg" >> ${server}_pre_patch.csv
 		done
 #		echo "Package Name,Installation date" >> ${server}_pre_patch.csv
 #		rpminfo1=$(ssh -o StrictHostKeyChecking=No ec2-user@$server -i ${keys}.pem sudo rpm -qa --last |  awk '{out=$1","$2; for(i=3;i<=NF;i++){out=out" "$i}; print out}')
@@ -85,20 +85,21 @@ echo "$ginfo_post" >> ${server_list}_post_patch.log
                 rpminfo_post=$(ssh -o StrictHostKeyChecking=No ec2-user@$server_list -i ${keys}.pem rpm -qa --last)
                 echo "$rpminfo_post" >> ${server_list}_post_patch.log
                 echo "============================Ending Post Patch report==================" >> ${server_list}_post_patch.log
-                echo "IP Address,Post Package Name" >> ${server_list}_post_patch.csv
+                echo ",IP Address,Post Package Name" >> ${server_list}_post_patch.csv
 #                rpminfo1=$(ssh -o StrictHostKeyChecking=No ec2-user@$server_list -i ${keys}.pem sudo rpm -qa --last |  awk '{out=$1","$2; for(i=3;i<=NF;i++){out=out" "$i}; print out}')
 #                echo "$rpminfo1" >> ${server_list}_post_patch.csv
                 for pkginfo in $(cat ${server_list}_pre_pkginfo)
                 do
                         post_patch=$(ssh -o StrictHostKeyChecking=No ec2-user@$server_list -i ${keys}.pem sudo cat /var/log/yum.log | grep -i $pkginfo | awk '{print $NF}')
-                       echo "${server_list},$post_patch" >> ${server_list}_post_patch.csv
-
+                       echo ",${server_list},$post_patch" >> ${server_list}_post_patch.csv
+		
                 done
 
                 else
-                        echo "$server is down. Please start the machine and try again......."
-                        echo "$server is down. Please start the machine and try again......." >> ${server_list}_post_patch.log
+                        echo "$server_list is down. Please start the machine and try again......."
+                        echo "$server_list is down. Please start the machine and try again......." >> ${server_list}_post_patch.log
                 fi
+		paste -d " " ${server_list}_pre_patch.csv ${server_list}_post_patch.csv >> allserver.csv
 
         done
 
